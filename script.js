@@ -1,45 +1,43 @@
 //your JS code here. If required.
-const output = document.getElementById("output");
-const btn = document.getElementById("download-images-button");
 
-const images = [
-"https://picsum.photos/id/237/200/300",
+// ✅ Define the array BEFORE it's used
+const imageUrls = [
+  "https://picsum.photos/id/237/200/300",
   "https://picsum.photos/id/238/200/300",
   "https://picsum.photos/id/239/200/300"
 ];
+
 function downloadImage(url) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(`Failed to download image: ${url}`);
-        img.src = url;
-      });
-    }
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(`Failed to download image: ${url}`);
+    img.src = url;
+  });
+}
 
-    // Main function to handle image downloading
-    function downloadImages(urls) {
-      const loadingDiv = document.getElementById('loading');
-      const errorDiv = document.getElementById('error');
-      const outputDiv = document.getElementById('output');
+function downloadImages(urls) {
+  const loading = document.getElementById("loading");
+  const error = document.getElementById("error");
+  const output = document.getElementById("output");
 
-      // Reset previous state
-      loadingDiv.style.display = 'block';
-      errorDiv.textContent = '';
-      outputDiv.innerHTML = '';
+  // Reset state
+  loading.style.display = "block";
+  error.textContent = "";
+  output.innerHTML = "";
 
-      const imagePromises = urls.map(downloadImage);
+  Promise.all(urls.map(downloadImage))
+    .then(images => {
+      images.forEach(img => output.appendChild(img));
+    })
+    .catch(err => {
+      error.textContent = err;
+    })
+    .finally(() => {
+      loading.style.display = "none";
+    });
+}
 
-      Promise.all(imagePromises)
-        .then(images => {
-          images.forEach(img => outputDiv.appendChild(img));
-        })
-        .catch(err => {
-          errorDiv.textContent = err;
-        })
-        .finally(() => {
-          loadingDiv.style.display = 'none';
-        });
-    }
-
-    // Trigger the download on page load (or call on button click)
-    downloadImages(imageUrls);9
+// ✅ Add click listener AFTER the DOM and variable are defined
+document.getElementById("download-images-button")
+  .addEventListener("click", () => downloadImages(imageUrls));
